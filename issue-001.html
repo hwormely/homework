@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Homework — Issue 001 · April 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+      --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --ink: #1a1a1a;
+      --paper: #faf9f7;
+      --white: #ffffff;
+      --rule: #d4d0c8;
+      --mid: #7a7a72;
+      --dark: #0f0f0f;
+      --affairs: #b5312c;
+      --business: #1b2b4b;
+      --culture: #c8883a;
+      --design: #2e5c45;
+      --music: #2560a8;
+      --tech: #4a5568;
+      --fashion: #9c6b56;
+      --travel: #6b4c2a;
+      --dispatch: #3d5230;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--dark);
+      font-family: var(--sans);
+      overscroll-behavior: none;
+    }
+
+    /* ──── MAGAZINE SCROLLER ──── */
+    .magazine {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      height: 100svh; /* iOS Safari: excludes address bar */
+      overflow-x: scroll;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: none;
+      scrollbar-width: none;
+    }
+    .magazine::-webkit-scrollbar { display: none; }
+
+    .page {
+      flex: 0 0 100vw;
+      width: 100vw;
+      height: 100vh;
+      height: 100svh; /* iOS Safari: excludes address bar */
+      scroll-snap-align: start;
+      scroll-snap-stop: always;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: var(--rule) transparent;
+      position: relative;
+    }
+
+    /* ──── NAVIGATION ──── */
+    .nav-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: rgba(10, 10, 10, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .nav-btn {
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 2px;
+    }
+    .nav-btn:hover { background: rgba(255,255,255,0.1); }
+    .nav-btn:disabled { opacity: 0.25; cursor: default; }
+
+    .nav-indicator {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.5);
+      text-transform: uppercase;
+      text-align: center;
+      min-width: 140px;
+    }
+
+    .nav-indicator .current-section {
+      display: block;
+      font-size: 10px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 2px;
+    }
+
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: rgba(255,255,255,0.9);
+      transition: width 0.4s ease;
+      z-index: 200;
+    }
+
+    /* ──── TYPOGRAPHY ──── */
+    .dept-label {
+      display: inline-block;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .headline {
+      font-family: var(--serif);
+      font-weight: 700;
+      line-height: 1.05;
+    }
+
+    .standfirst {
+      font-family: var(--sans);
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.55;
+      color: #444;
+    }
+
+    .byline {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .body-text p {
+      font-family: var(--serif);
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .body-text p.drop-cap::first-letter {
+      float: left;
+      font-family: var(--serif);
+      font-size: 68px;
+      font-weight: 700;
+      line-height: 0.8;
+      margin: 4px 10px 0 0;
+      color: var(--ink);
+    }
+
+    .pull-quote {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 22px;
+      line-height: 1.4;
+      color: var(--ink);
+      padding: 20px 0 20px 20px;
+      margin: 28px 0;
+    }
+
+    .caption {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--mid);
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+
+    .rule { height: 1px; background: var(--rule); margin: 20px 0; }
+    .rule-dark { height: 1px; background: rgba(255,255,255,0.15); margin: 20px 0; }
+
+    /* ──── PAGE 1: COVER ──── */
+    .cover {
+      background: var(--dark);
+      display: grid;
+      grid-template-rows: 1fr;
+    }
+
+    .cover-inner {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .cover-image {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      opacity: 0.65;
+    }
+
+    .cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.0) 30%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0.92) 100%);
+    }
+
+    .cover-masthead {
+      position: absolute;
+      top: 32px; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 0 36px;
+    }
+
+    .masthead-title {
+      font-family: var(--sans);
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+
+    .masthead-meta {
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      text-align: right;
+      line-height: 1.8;
+    }
+
+    .cover-content {
+      position: absolute;
+      bottom: 72px; left: 36px; right: 36px;
+    }
+
+    .cover-category {
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 12px;
+    }
+
+    .cover-headline {
+      font-family: var(--serif);
+      font-size: clamp(36px, 6vw, 68px);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.02;
+      margin-bottom: 16px;
+      max-width: 700px;
+    }
+
+    .cover-lines {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0 32px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .cover-line {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.04em;
+      padding: 4px 0;
+    }
+
+    .cover-line span {
+      color: rgba(255,255,255,0.35);
+      margin-right: 6px;
+    }
+
+    /* ──── PAGE 2: CONTENTS ──── */
+    .contents-page {
+      background: var(--paper);
+      padding: 0 0 80px;
+    }
+
+    .contents-header {
+      padding: 40px 40px 28px;
+      border-bottom: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .contents-title {
+      font-family: var(--sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+
+    .contents-issue {
+      font-family: var(--sans);
+      font-size: 11px;
+      color: var(--mid);
+    }
+
+    .contents-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+
+    @media (max-width: 600px) {
+      .contents-grid { grid-template-columns: 1fr; }
+    }
+
+    .contents-item {
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .contents-item:nth-child(odd) {
+      border-right: 1px solid var(--rule);
+    }
+
+    .contents-item:hover { background: rgba(0,0,0,0.02); }
+
+    .contents-item-dept {
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .contents-item-title {
+      font-family: var(--serif);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .contents-item-deck {
+      font-family: var(--sans);
+      font-size: 12px;
+      color: var(--mid);
+      line-height: 1.45;
+    }
+
+    /* ──── ARTICLE PAGES ──── */
+    .article-page {
+      background: var(--paper);
+    }
+
+    .article-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100vh;
+    }
+
+    @media (max-width: 768px) {
+      .article-layout { grid-template-columns: 1fr; height: auto; }
+      .article-image-col { height: 45vw; min-height: 220px; }
+    }
+
+    .article-image-col {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .article-image-col img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .article-text-col {
+      overflow-y: auto;
+      padding: 44px 40px 88px;
+      scrollbar-width: thin;
+    }
+
+    .article-text-col .dept-label { }
+
+    .article-text-col .headline {
+      font-size: clamp(28px, 3.5vw, 52px);
+      margin: 10px 0 16px;
+    }
+
+    .article-text-col .standfirst {
+      margin-bottom: 18px;
+    }
+
+    .article-text-col .byline {
+      margin-bottom: 24px;
+    }
+
+    /* ──── FULL-BLEED PHOTO PAGE ──── */
+    .photo-page {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .photo-page img {
+      width: 100%; height: 100vh;
+      object-fit: cover;
+    }
+
+    .photo-caption-bar {
+      position: absolute;
+      bottom: 72px; left: 0; right: 0;
+      padding: 16px 36px;
+      background: rgba(0,0,0,0.6);
+    }
+
+    .photo-caption-bar .caption {
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* ──── MUSIC PAGE ──── */
+    .music-page {
+      background: var(--paper);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      height: 100vh;
+      height: 100svh;
+    }
+
+    @media (max-width: 768px) {
+      .music-page { grid-template-columns: 1fr; height: auto; }
+    }
+
+    .music-text-col {
+      padding: 44px 40px 88px;
+      overflow-y: auto;
+      border-right: 1px solid var(--rule);
+    }
+
+    .music-text-col .dept-label { color: var(--music); }
+    .music-text-col .headline { color: var(--ink); font-size: clamp(28px, 3vw, 44px); margin: 10px 0 16px; }
+    .music-text-col .standfirst { color: #555; }
+    .music-text-col .byline { color: var(--mid); }
+    .music-text-col .body-text p { color: var(--ink); font-size: 15px; }
+    .music-text-col .body-text p.drop-cap::first-letter { color: var(--ink); }
+    .music-text-col .pull-quote { color: var(--ink); border-left: 3px solid var(--music); }
+    .music-text-col .rule { background: var(--rule); }
+
+    .music-media-col {
+      padding: 44px 40px 88px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      background: #f0ede8;
+    }
+
+    .music-player-card {
+      background: var(--white);
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .music-player-label {
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      padding: 12px 16px 8px;
+    }
+
+    .music-player-card iframe {
+      display: block;
+      border: none;
+    }
+
+    .tracklist {
+      list-style: none;
+    }
+
+    .tracklist li {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--rule);
+      font-family: var(--sans);
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .tracklist li:last-child { border-bottom: none; }
+    .tracklist li .track-num { color: var(--mid); min-width: 24px; }
+    .tracklist li .track-name { flex: 1; padding: 0 12px; }
+    .tracklist li .track-time { color: var(--mid); }
+
+    /* ──── DISPATCH / FULL TEXT PAGE ──── */
+    .text-page {
+      background: var(--paper);
+      display: flex;
+      align-items: stretch;
+      height: 100vh;
+    }
+
+    .text-page-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 44px 40px 88px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      width: 100%;
+    }
+
+    /* ──── BACK COVER ──── */
+    .back-cover {
+      background: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .back-cover-logo {
+      font-family: var(--sans);
+      font-size: clamp(40px, 8vw, 80px);
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--white);
+      margin-bottom: 24px;
+    }
+
+    .back-cover-tagline {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: clamp(16px, 2.5vw, 22px);
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 48px;
+      max-width: 400px;
+    }
+
+    .back-cover-meta {
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      line-height: 2;
+    }
+
+    .back-cover-rule {
+      width: 40px;
+      height: 1px;
+      background: rgba(255,255,255,0.2);
+      margin: 32px auto;
+    }
+
+    /* ──── SECTION ACCENT RULES ──── */
+    .accent-affairs { border-top: 3px solid var(--affairs); }
+    .accent-business { border-top: 3px solid var(--business); }
+    .accent-culture { border-top: 3px solid var(--culture); }
+    .accent-design { border-top: 3px solid var(--design); }
+    .accent-music { border-top: 3px solid var(--music); }
+    .accent-tech { border-top: 3px solid var(--tech); }
+    .accent-fashion { border-top: 3px solid var(--fashion); }
+    .accent-travel { border-top: 3px solid var(--travel); }
+    .accent-dispatch { border-top: 3px solid var(--dispatch); }
+
+    .dept-affairs { color: var(--affairs); }
+    .dept-business { color: var(--business); }
+    .dept-culture { color: var(--culture); }
+    .dept-design { color: var(--design); }
+    .dept-music { color: var(--music); }
+    .dept-tech { color: var(--tech); }
+    .dept-fashion { color: var(--fashion); }
+    .dept-travel { color: var(--travel); }
+    .dept-dispatch { color: var(--dispatch); }
+
+    /* ──── PULL QUOTE ACCENTS ──── */
+    .pull-quote.q-affairs { border-left: 3px solid var(--affairs); }
+    .pull-quote.q-business { border-left: 3px solid var(--business); }
+    .pull-quote.q-culture { border-left: 3px solid var(--culture); }
+    .pull-quote.q-design { border-left: 3px solid var(--design); }
+    .pull-quote.q-tech { border-left: 3px solid var(--tech); }
+    .pull-quote.q-fashion { border-left: 3px solid var(--fashion); }
+    .pull-quote.q-travel { border-left: 3px solid var(--travel); }
+    .pull-quote.q-dispatch { border-left: 3px solid var(--dispatch); }
+
+    /* ──── SECTION HEADER RULE ──── */
+    .section-rule {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .section-rule::before, .section-rule::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+    .section-rule-text {
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--mid);
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="progress-bar" id="progressBar"></div>
+
+  <div class="magazine" id="magazine">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 1: COVER                                  -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="1" data-section="Cover">
+      <div class="cover-inner">
+        <img class="cover-image"
+          src="https://picsum.photos/seed/homework-cover/1400/900"
+          alt="Homework Issue 001 Cover">
+        <div class="cover-overlay"></div>
+
+        <div class="cover-masthead">
+          <div class="masthead-title">Homework</div>
+          <div class="masthead-meta">
+            Issue 001<br>
+            April 25, 2026
+          </div>
+        </div>
+
+        <div class="cover-content">
+          <div class="cover-category">Affairs · Lead Story</div>
+          <div class="cover-headline">The Corridor Opens</div>
+          <div class="cover-lines">
+            <div class="cover-line"><span>+</span> Lagos After Dark</div>
+            <div class="cover-line"><span>+</span> Twenty-Three Square Metres</div>
+            <div class="cover-line"><span>+</span> Letter from Nairobi</div>
+            <div class="cover-line"><span>+</span> Tbilisi Is Having a Moment</div>
+            <div class="cover-line"><span>+</span> The Right to Fix It</div>
+            <div class="cover-line"><span>+</span> The Patience Dividend</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 2: CONTENTS                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="2" data-section="Contents">
+      <div class="contents-page">
+        <div class="contents-header">
+          <div class="contents-title">Contents</div>
+          <div class="contents-issue">Issue 001 · April 2026</div>
+        </div>
+
+        <div class="contents-grid">
+          <div class="contents-item" onclick="goToPage(3)">
+            <div class="contents-item-dept dept-affairs">Affairs</div>
+            <div class="contents-item-title">The Corridor Opens</div>
+            <div class="contents-item-deck">New trade infrastructure is reshaping East Africa, the Gulf, and South Asia. We drove the road to find out why it matters.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(5)">
+            <div class="contents-item-dept dept-business">Business</div>
+            <div class="contents-item-title">The Patience Dividend</div>
+            <div class="contents-item-deck">The brands that refused to franchise, rush, or chase trends are turning patience into extraordinary profit.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(6)">
+            <div class="contents-item-dept dept-culture">Culture</div>
+            <div class="contents-item-title">Lagos After Dark</div>
+            <div class="contents-item-deck">Nigeria's commercial capital has a creative scene that the world is finally beginning to notice. We spent a week finding out why.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(7)">
+            <div class="contents-item-dept dept-design">Design</div>
+            <div class="contents-item-title">Twenty-Three Square Metres</div>
+            <div class="contents-item-deck">When Tokyo architect Yuji Nakata designed his own apartment, he asked one question: what does a person actually need?</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(8)">
+            <div class="contents-item-dept dept-music">Music</div>
+            <div class="contents-item-title">Where the Cumbia Comes From</div>
+            <div class="contents-item-deck">Deep in Colombia's Caribbean coast, a generation is remaking a genre that belongs to the world. Plus: a playlist to take you there.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(9)">
+            <div class="contents-item-dept dept-tech">Technology</div>
+            <div class="contents-item-title">The Right to Fix It</div>
+            <div class="contents-item-deck">Across Europe and North America, the repair café is no longer just practical. It's become political.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(10)">
+            <div class="contents-item-dept dept-fashion">Fashion</div>
+            <div class="contents-item-title">The New Work Uniform</div>
+            <div class="contents-item-deck">The suit did not die. It went underground for a decade and came back changed — and considerably more interesting.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(11)">
+            <div class="contents-item-dept dept-travel">Travel</div>
+            <div class="contents-item-title">Forty-Eight Hours in Tbilisi</div>
+            <div class="contents-item-deck">Georgia's capital is having a moment. The question everyone is asking: how does it survive one?</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(12)">
+            <div class="contents-item-dept dept-dispatch">Global Dispatch</div>
+            <div class="contents-item-title">Letter from Nairobi</div>
+            <div class="contents-item-deck">There are cities that look like the future. Then there are cities that are building it. Our correspondent on what the world can learn from East Africa's most wired city.</div>
+          </div>
+          <div class="contents-item" onclick="goToPage(13)">
+            <div class="contents-item-dept" style="color: var(--mid);">Object</div>
+            <div class="contents-item-title">Find &amp; Keep</div>
+            <div class="contents-item-deck">Seven things worth seeking out this week: a record, a bag, a bar stool, a paperback, a fragrance, a typeface, and a walk.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 3: AFFAIRS — TEXT                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="3" data-section="Affairs">
+      <div class="article-layout">
+        <div class="article-image-col">
+          <img src="https://picsum.photos/seed/djibouti-port/800/1000" alt="Doraleh Container Terminal, Djibouti">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">Doraleh Container Terminal, Djibouti. The port operates around the clock. — Photograph: Aïcha Warsama</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-affairs">
+          <span class="dept-label dept-affairs">Affairs</span>
+          <h1 class="headline" style="font-size: clamp(30px, 3.5vw, 54px); margin: 10px 0 18px;">The Corridor Opens</h1>
+          <p class="standfirst">New infrastructure is quietly reshaping trade between East Africa, the Gulf, and South Asia. We drove the road.</p>
+          <div class="rule"></div>
+          <p class="byline">By James Mollison · Photography Aïcha Warsama</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">There is a container port in Djibouti where the cranes never stop. At three in the morning, under lights so bright they bleach the hulls of the vessels below them, the work of connecting a continent to the world continues without pause or ceremony. You can watch it from the highway that runs along the shore and feel, without knowing exactly why, that something is changing.</p>
+            <p>The Djibouti-Ethiopia corridor is carrying freight that three years ago moved by ship through the Suez. The numbers are still modest when measured against global shipping flows — but the direction is not modest at all. A new infrastructure axis is forming between the Horn of Africa, the Gulf, and the Indian subcontinent, built with Chinese capital, Indian technology, and Emirati logistics know-how. The world's supply chains are adding a new spine, and it runs through some of the least-covered territory on the map.</p>
+            <div class="pull-quote q-affairs">"There is a port in the Gulf of Tadjoura that no one outside the industry is talking about yet. In five years, everyone will be."</div>
+            <p>We drove the corridor from Addis Ababa to the coast over four days, stopping in market towns and logistics hubs to talk to the people who move things — truckers, warehouse managers, customs brokers, port administrators — and the people who make things: coffee farmers, leather workers, textile producers who are watching the cost of reaching a European buyer fall, slowly but perceptibly, for the first time in a generation.</p>
+            <p>What we found was not a story about geopolitics, though geopolitics are everywhere in it. It was a story about infrastructure as possibility — about what happens to a region when the friction of moving goods reduces. It is, above all, a story about time: what it used to take to get a container from Addis to the port, and what it takes now.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 4: AFFAIRS PHOTO SPREAD                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="4" data-section="Affairs">
+      <div class="photo-page">
+        <img src="https://picsum.photos/seed/east-africa-road/1400/900" alt="The Addis-Djibouti road at dawn">
+        <div class="photo-caption-bar">
+          <p class="caption" style="color:rgba(255,255,255,0.7);">The Addis-Djibouti railway runs parallel to the old road for much of its length. At dawn, the two routes tell the history of connectivity in this part of the world in a single frame. — Photograph: Aïcha Warsama</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 5: BUSINESS                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="5" data-section="Business">
+      <div class="article-layout" style="direction: rtl;">
+        <div class="article-image-col" style="direction: ltr;">
+          <img src="https://picsum.photos/seed/milan-leather/800/1000" alt="Milan showroom, Via Montenapoleone">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">The showroom floor has not changed since 1963. That, Luca De Benedetti will tell you, is the point.</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-business" style="direction: ltr;">
+          <span class="dept-label dept-business">Business</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">The Patience Dividend</h1>
+          <p class="standfirst">The brands that refused to franchise, rush production, or chase trends are turning patience into extraordinary profit.</p>
+          <div class="rule"></div>
+          <p class="byline">By Claudia Ferreira · Milan</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">In a showroom on Via Montenapoleone that has not changed its floor tiles since 1963, Luca De Benedetti is explaining, with quiet pleasure, why he turned down a private-equity offer that would have tripled the number of stores.</p>
+            <p>"They wanted us to be everywhere," he says, running one hand along a rack of coats that takes two weeks each to produce. "We are not everywhere. We are here. That is different."</p>
+            <p>De Benedetti's company, which makes leather goods using techniques his grandfather developed, did €34 million in revenue last year. The previous year it did €31 million. The year before that, €28 million. Steady, compound, unspectacular. The kind of growth that does not generate headlines or attract the attention of fast-money funds. The kind that, over time, turns into something no trend can reach.</p>
+            <div class="pull-quote q-business">"Fast capital wants fast returns. We make things slowly. There is no compromise between those two sentences."</div>
+            <p>This is not, it turns out, an isolated story. Across Italy, Germany, Japan, and Denmark — the countries that have always produced the world's most durable goods — a pattern has emerged in the past three years. The heritage brands that held their lines through the pandemic, through inflation, through the disruption of global supply chains, have emerged with stronger margins, more loyal customer bases, and in several cases, waiting lists. The brands that chased volume are fighting for shelf space.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 6: CULTURE — LAGOS                        -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="6" data-section="Culture">
+      <div class="article-layout">
+        <div class="article-image-col">
+          <img src="https://picsum.photos/seed/lagos-night/800/1000" alt="Lagos Island at night">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">Victoria Island at 1am. The city's creative community tends to find each other at hours that would end a night in other capitals. — Photograph: Adeola Sanni</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-culture">
+          <span class="dept-label dept-culture">Culture</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">Lagos After Dark</h1>
+          <p class="standfirst">Nigeria's commercial capital has a creative scene the world is starting to notice. We spent a week finding out why.</p>
+          <div class="rule"></div>
+          <p class="byline">By Bisi Adeyemi · Photography Adeola Sanni</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">The last thing Femi says before we get into the Uber is: you have to understand — this city never sleeps because it is afraid of what it might miss. He is a painter. He has a studio in Yaba that used to be a printing house. He works from ten at night until four in the morning, because the energy in the city after midnight is different from the energy during the day. Calmer, he says. More possible.</p>
+            <p>Lagos has always had creative energy. What is new — and the reason that curators from Berlin, New York, and Tokyo have been showing up with notepads and open schedules — is the infrastructure that has grown up around it. In the past four years, the city has acquired two serious art fairs, a dozen commercial galleries that are actually selling work internationally, and a generation of designers, filmmakers, and musicians who are doing things in Lagos specifically because Lagos is where they can do them.</p>
+            <div class="pull-quote q-culture">"We are not making work for export. We are making work for here. If the world wants to come here and look at it, that is their good fortune."</div>
+            <p>The names appear on international lists now — Toyin Ojih Odutola, Njideka Akunyili Crosby emerged earlier, but they opened a door that younger artists are walking through with confidence. What makes the current moment different is not just the artists: it is the entire surrounding ecosystem of patrons, writers, platforms, and spaces that has made Lagos capable of sustaining a creative community without requiring it to leave.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 7: DESIGN                                 -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="7" data-section="Design">
+      <div class="article-layout" style="direction: rtl;">
+        <div class="article-image-col" style="direction: ltr;">
+          <img src="https://picsum.photos/seed/tokyo-apartment/800/1000" alt="Yuji Nakata's apartment, Shimokitazawa">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">The folding desk, fully extended, doubles as a dining table. When closed, the wall it disappears into is the library. — Photograph: Kei Miyamoto</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-design" style="direction: ltr;">
+          <span class="dept-label dept-design">Design + Object</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">Twenty-Three Square Metres</h1>
+          <p class="standfirst">When Tokyo architect Yuji Nakata designed his own apartment, he asked a single question: what does a person actually need?</p>
+          <div class="rule"></div>
+          <p class="byline">By Haruka Shimizu · Photography Kei Miyamoto · Tokyo</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">Yuji Nakata's apartment does not appear to be twenty-three square metres. This is, he will tell you, entirely the point. The first thing you notice is the light — two windows that face west and are never dressed. Then you notice the height: the ceiling is four metres, high enough that the apartment breathes. Then you begin to see how much is in it: a full library, a kitchen that functions, a sleeping area tucked above it on a mezzanine built of pale oak, a bath. A folding desk that, when open, becomes the dining table for two. When closed, it disappears into the wall of books.</p>
+            <p>Nakata has lived here for twelve years. He is forty-one. He has no plans to leave. "Every time I visit larger apartments I feel that the space is wasted," he says. "Not physically — I mean the attention. In a bigger space you stop noticing the room."</p>
+            <div class="pull-quote q-design">"In a bigger space you stop noticing the room. That is what I wanted to avoid."</div>
+            <p>The apartment is in Shimokitazawa, a neighbourhood in western Tokyo known for its second-hand record shops, small theatres, and the particular kind of person who chooses walkability and neighbourhood character over square metres and commute efficiency. In Tokyo, this choice has always existed. What is different now is that younger architects and urbanists are beginning to articulate it as a design philosophy rather than a concession — a decision made for reasons of attention, engagement, and connection to place.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 8: MUSIC                                  -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="8" data-section="Music">
+      <div class="music-page">
+        <div class="music-text-col">
+          <span class="dept-label">Music</span>
+          <h1 class="headline" style="font-size: clamp(26px, 3vw, 44px); margin: 10px 0 18px;">Where the Cumbia Comes From</h1>
+          <p class="standfirst">Deep in Colombia's Caribbean coast, a generation is remaking a genre that belongs to the world.</p>
+          <div class="rule"></div>
+          <p class="byline">By Rafael Hernández · Barranquilla</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">The Meridian Brothers do not make easy music. They make music that asks something of you: patience, a certain appetite for the unexpected, a willingness to follow a melody somewhere you would not have thought to go. Eblis Álvarez, the band's mastermind, describes his approach with characteristic precision: "I am interested in what Colombian music sounded like before it became Colombian music. The moment before the category formed."</p>
+            <p>That moment, whenever it was, produced something extraordinary — a collision of African rhythm, Spanish melody, and indigenous percussion that became cumbia, which became vallenato, which became everything. Álvarez is working backwards, decomposing the genre to find its moving parts, and then reassembling them in configurations that feel familiar and completely alien at the same time.</p>
+            <div class="pull-quote">"I am interested in what Colombian music sounded like before it became Colombian music. The moment before the category formed."</div>
+            <p>What is remarkable is that this work is happening in Barranquilla — not Bogotá, not Medellín — in a city that has always been the port through which things pass on their way to becoming something else. There is something fitting in that. Cumbia began in the slave markets of the coast. It moved inland, changed, became national. Now someone is bringing it back to the coast, and asking what it might become next.</p>
+          </div>
+        </div>
+
+        <div class="music-media-col">
+          <div>
+            <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 12px;">This Issue's Playlist</p>
+            <div class="music-player-card">
+              <div class="music-player-label">Homework Selects — Issue 001</div>
+              <iframe
+                allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write"
+                frameborder="0"
+                height="175"
+                style="width:100%;overflow:hidden;background:transparent;"
+                sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
+                src="https://embed.music.apple.com/us/album/cumbia-vol%C3%A1nica/1563749551">
+              </iframe>
+            </div>
+          </div>
+
+          <div>
+            <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 12px;">Five Records — Essential Listening</p>
+            <ul class="tracklist">
+              <li>
+                <span class="track-num">01</span>
+                <span class="track-name">
+                  <span style="display:block; font-size:13px;">El Cocodrilo — Meridian Brothers</span>
+                  <span style="display:block; font-size:11px; color:var(--mid);">Cumbia Volcánica, 2021</span>
+                </span>
+              </li>
+              <li>
+                <span class="track-num">02</span>
+                <span class="track-name">
+                  <span style="display:block; font-size:13px;">Chismiten — Mdou Moctar</span>
+                  <span style="display:block; font-size:11px; color:var(--mid);">Afrique Victime, 2021</span>
+                </span>
+              </li>
+              <li>
+                <span class="track-num">03</span>
+                <span class="track-name">
+                  <span style="display:block; font-size:13px;">Sete Vidas — Hermeto Pascoal</span>
+                  <span style="display:block; font-size:11px; color:var(--mid);">Zabumbê-bum-á, 1979</span>
+                </span>
+              </li>
+              <li>
+                <span class="track-num">04</span>
+                <span class="track-name">
+                  <span style="display:block; font-size:13px;">Mohabbat — Arooj Aftab</span>
+                  <span style="display:block; font-size:11px; color:var(--mid);">Vulture Prince, 2021</span>
+                </span>
+              </li>
+              <li>
+                <span class="track-num">05</span>
+                <span class="track-name">
+                  <span style="display:block; font-size:13px;">Tamala — Bombino</span>
+                  <span style="display:block; font-size:11px; color:var(--mid);">Nomad, 2013</span>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 9: TECH                                   -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="9" data-section="Technology">
+      <div class="article-layout">
+        <div class="article-image-col">
+          <img src="https://picsum.photos/seed/repair-cafe-brussels/800/1000" alt="Repair café, Brussels">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">Michel at the Brussels repair café. He works on other people's machines every Tuesday. He considers this a form of protest. — Photograph: Annelies Vdb</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-tech">
+          <span class="dept-label dept-tech">Technology</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">The Right to Fix It</h1>
+          <p class="standfirst">Across Europe and North America, the repair café is no longer just practical. It has become political.</p>
+          <div class="rule"></div>
+          <p class="byline">By Lena Müller · Brussels / Berlin / New York</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">In a community centre in Brussels on a Tuesday afternoon, a retired electrician named Michel is taking apart someone else's espresso machine. He does this every week. He has been doing it for seven years. He does not think of himself as a radical. He is, quietly, wrong about that.</p>
+            <p>The repair café movement began in the Netherlands in 2009, when a community organiser named Martine Postma opened a space where people could bring broken things and find someone to help them fix it. There are now more than three thousand repair cafés worldwide. The number has been growing by roughly two hundred a year since 2020. In Amsterdam, Paris, London, and New York, there are waiting lists to attend.</p>
+            <div class="pull-quote q-tech">"The manufacturers say there is no business model for repairability. That's not an engineering problem. It's a choice."</div>
+            <p>The movement has acquired political weight as regulators in the European Union and several US states have passed, or are considering, right-to-repair legislation — laws that would require manufacturers to provide consumers and independent repair shops with the tools, parts, and documentation needed to fix products. Apple, John Deere, and Sony have all lobbied against such legislation. All three have now, under regulatory pressure, announced limited repair programs. The gap between those positions is where the conversation is happening.</p>
+            <p>Michel finishes with the espresso machine. It starts. The woman who brought it in — she is perhaps sixty, she brought it because her late husband bought it and she is not ready to throw it away — holds it for a moment before putting it in her bag. This is also what the repair café is about.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 10: FASHION                               -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="10" data-section="Fashion">
+      <div class="article-layout" style="direction: rtl;">
+        <div class="article-image-col" style="direction: ltr;">
+          <img src="https://picsum.photos/seed/tailoring-london/800/1000" alt="New tailoring, London">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">East London, 2026. The return to tailoring is not about formality. It is about considered dressing — making choices that last. — Photograph: Priya Kaur</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-fashion" style="direction: ltr;">
+          <span class="dept-label dept-fashion">Fashion + Style</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">The New Work Uniform</h1>
+          <p class="standfirst">The suit did not die. It went underground for a decade and came back changed — and considerably more interesting.</p>
+          <div class="rule"></div>
+          <p class="byline">By Simone Carvalho · London / Tokyo</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">The suit did not die. You could be forgiven for thinking otherwise — the decade of the hoodie, the slow-wear movement, the collapse of the formal dress code across tech, media, and eventually finance — but what actually happened is more interesting than death. The suit went underground. It found a different audience, a different vocabulary, and a different set of questions to answer.</p>
+            <p>The questions it is answering now are not about authority or conformity. They are about attention. About craft. About the difference between wearing something and owning it. The tailors who have been quietly working through the casualisation of the workplace have emerged, in the past two years, to find more clients, younger clients, and clients who know more than any previous generation about what they are asking for.</p>
+            <div class="pull-quote q-fashion">"My clients are not wearing suits because they have to. They are wearing them because they have thought about it."</div>
+            <p>In East London, where the vintage and the new exist in closer proximity than anywhere else in the world, a generation of stylists, musicians, and creative directors has been doing the same thing to tailoring that they have been doing to sneakers and streetwear for twenty years: taking it apart, mixing the components, and reassembling something that would be unrecognisable to previous generations but feels, somehow, exactly right.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 11: TRAVEL — TBILISI                      -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="11" data-section="Travel">
+      <div class="article-layout">
+        <div class="article-image-col">
+          <img src="https://picsum.photos/seed/tbilisi-georgia/800/1000" alt="Old Town, Tbilisi">
+          <div style="position:absolute; bottom:0; left:0; right:0; padding:16px 20px; background:rgba(0,0,0,0.5);">
+            <p class="caption" style="color:rgba(255,255,255,0.6);">Old Town, Tbilisi. The city's architecture holds about four civilisations at once, none of them entirely resolved. That tension is why people come. — Photograph: Ana Dolidze</p>
+          </div>
+        </div>
+        <div class="article-text-col accent-travel">
+          <span class="dept-label dept-travel">Travel + Places</span>
+          <h1 class="headline" style="font-size: clamp(28px, 3vw, 48px); margin: 10px 0 18px;">Forty-Eight Hours in Tbilisi</h1>
+          <p class="standfirst">Georgia's capital is having a moment. The question everyone is asking: how does it survive one?</p>
+          <div class="rule"></div>
+          <p class="byline">By Nino Tsiklauri · Tbilisi</p>
+          <div class="rule"></div>
+          <div class="body-text">
+            <p class="drop-cap">Everyone who has been to Tbilisi tells you to go before it changes. Everyone who lives there tells you to stay before you leave. Both instructions contain a truth and neither is the whole story.</p>
+            <p>The city has been having a moment for about three years, which in Tbilisi time — a place whose architectural layers span the fifth century through the Soviet era through something currently being negotiated — is not very long at all. The moment involves natural wine, and a restaurant scene that has arrived without warning to produce some of the most interesting food in Europe, and a digital-nomad community that discovered Georgia's tax treatment and relatively low cost of living simultaneously and has been arriving, visibly, ever since.</p>
+            <div class="pull-quote q-travel">"We did not need to be discovered. We have been here the whole time. What changed is that the world changed around us."</div>
+            <p>What it also involves, less visible from outside, is a city working out what it wants to be. Georgia has, in the past two years, navigated a series of political and diplomatic pressures that have tested its civic character in ways not easily summarised. The people who have stayed — and many have — have stayed because they believe in something specific about this place. The food is extraordinary. The wine is better than anywhere. The hospitality is not a performance. But none of those things are the reason people come back.</p>
+            <p>They come back because of how the city makes you feel: that you are somewhere real, in the full and demanding sense of that word. Somewhere that has not optimised itself for your comfort.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 12: DISPATCH — NAIROBI                    -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="12" data-section="Dispatch">
+      <div class="text-page">
+        <div class="text-page-inner">
+          <div class="section-rule">
+            <span class="section-rule-text">Global Dispatch</span>
+          </div>
+          <span class="dept-label dept-dispatch">Letter from Nairobi</span>
+          <h1 class="headline" style="font-size: clamp(32px, 4vw, 56px); margin: 12px 0 20px; color: var(--ink);">What Nairobi Gets Right</h1>
+          <p class="standfirst" style="margin-bottom: 20px;">There are cities that look like the future. Then there are cities that are building it. Our correspondent on what the world can learn from East Africa's most wired city.</p>
+          <div class="rule"></div>
+          <p class="byline" style="margin-bottom: 24px;">By Wanjiku Kamau · Nairobi</p>
+          <div class="body-text">
+            <p class="drop-cap">There are cities that look like the future and cities that are building it. Nairobi is the second kind. This distinction matters because cities that look like the future are usually performing it — performing for capital, for rankings, for the photograph that will appear in the business-class magazine. Cities that are building it are doing something harder and less photogenic: they are solving problems, specifically and continuously, for the people who actually live there.</p>
+            <p>Nairobi has been solving problems for a long time. M-Pesa, the mobile money system that changed financial access across sub-Saharan Africa, was not an accident of technology. It was a response to a specific infrastructure gap — the absence of bank branches for millions of Kenyans — that was solved by people who understood the problem from the inside. This is the Nairobi model: solutions that arise from constraint rather than from abundance.</p>
+            <div class="pull-quote q-dispatch">"We don't build for tomorrow. We build for the people who are here now, with the materials we have. Then tomorrow comes and we build again."</div>
+            <p>The city's tech sector — known, inevitably, as Silicon Savannah — has grown beyond that nickname into something more complex and more interesting. It is not a single cluster of startups chasing the same metrics. It is a distributed ecosystem of builders, funders, government agencies, and civil society organisations working on problems in agriculture, healthcare, urban mobility, and education that the rest of the world would benefit from solving too.</p>
+            <p>What strikes a visitor — what has struck me, returning after a year away — is the pace. Not just the economic pace, though that is real, but the pace of civic invention: the speed at which the city tries new things, abandons what doesn't work, and tries again. This is what happens when you build without the weight of entrenched infrastructure. You can move.</p>
+            <p>Whether the city moves in a direction that preserves what makes it generative — the informality, the risk tolerance, the neighbourhood-level problem-solving that produces actual innovation — is the question that Nairobi's next decade will answer. The next few years will tell us whether it gets to keep what made it interesting, or whether it trades that for something shinier and more legible from the outside.</p>
+            <p>I am betting on the city. I have seen it bet on itself before.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 13: FIND & KEEP (OBJECT)                  -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="13" data-section="Object">
+      <div class="text-page" style="background: var(--paper);">
+        <div class="text-page-inner">
+          <div class="section-rule">
+            <span class="section-rule-text">Find &amp; Keep</span>
+          </div>
+          <h1 class="headline" style="font-size: clamp(28px, 3.5vw, 48px); margin: 12px 0 8px;">Seven Things Worth Seeking Out</h1>
+          <p class="standfirst" style="margin-bottom: 28px;">A record, a bag, a bar stool, a paperback, a fragrance, a typeface, and a walk. One from each week.</p>
+          <div class="rule"></div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin-top: 8px;">
+            <div style="padding: 20px 20px 20px 0; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule);">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Record</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">Cumbia Volcanica — Meridian Brothers</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">Everything the feature says and then some. Start with <em>El Cocodrilo</em>. Do not operate heavy machinery.</p>
+            </div>
+            <div style="padding: 20px 0 20px 20px; border-bottom: 1px solid var(--rule);">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Bag</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">Tanner Goods Utility Brief</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">Oregon-made, full-grain leather, gets better every year. The briefcase that doesn't announce itself.</p>
+            </div>
+            <div style="padding: 20px 20px 20px 0; border-bottom: 1px solid var(--rule); border-right: 1px solid var(--rule);">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Furniture</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">HAY AAC 20 Counter Stool</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">Simple, well-proportioned, and available in forty-seven colours. Kitchen islands have needed this since forever.</p>
+            </div>
+            <div style="padding: 20px 0 20px 20px; border-bottom: 1px solid var(--rule);">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Paperback</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">The Secret History of Kindness — Melissa Holbrook Pierson</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">Nominally about dog training. Actually about behaviour, trust, and what we ask of the creatures we live with.</p>
+            </div>
+            <div style="padding: 20px 20px 20px 0; border-right: 1px solid var(--rule);">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Fragrance</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">Le Labo Santal 33</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">Still. After all this time. Still the one you smell on the person you want to follow out of the room.</p>
+            </div>
+            <div style="padding: 20px 0 20px 20px;">
+              <p style="font-family: var(--sans); font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); margin-bottom: 8px;">The Walk</p>
+              <p style="font-family: var(--serif); font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--ink);">Shimokitazawa, Tokyo — 2 hours</p>
+              <p style="font-family: var(--sans); font-size: 13px; color: #555; line-height: 1.5;">North from the station, through the theatre district, into the market streets. Stop when the record shops start.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PAGE 14: BACK COVER                            -->
+    <!-- ══════════════════════════════════════════════ -->
+    <section class="page" data-page="14" data-section="Homework">
+      <div class="back-cover">
+        <div class="back-cover-logo">Homework</div>
+        <div class="back-cover-tagline">For people who are curious about the world and find it difficult to stop.</div>
+        <div class="back-cover-rule"></div>
+        <div class="back-cover-meta">
+          Issue 001 · April 25, 2026<br>
+          Published every Friday at 9 a.m.<br>
+          homework.mag
+        </div>
+        <div style="margin-top: 48px;">
+          <p style="font-family: var(--sans); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5);">Arts · Culture · Design · Tech · Business · Music · Travel · Fashion</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ── NAVIGATION BAR ── -->
+  <div class="nav-bar">
+    <button class="nav-btn" id="prevBtn" onclick="flipPage(-1)">← Prev</button>
+    <div class="nav-indicator">
+      <span id="pageNum">1 / 14</span>
+      <span class="current-section" id="currentSection">Cover</span>
+    </div>
+    <button class="nav-btn" id="nextBtn" onclick="flipPage(1)">Next →</button>
+  </div>
+
+  <script>
+    const mag = document.getElementById('magazine');
+    const pages = document.querySelectorAll('.page');
+    const pageNum = document.getElementById('pageNum');
+    const sectionEl = document.getElementById('currentSection');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const total = pages.length;
+    let current = 0;
+
+    function updateUI() {
+      const page = pages[current];
+      const section = page.dataset.section || '';
+      pageNum.textContent = (current + 1) + ' / ' + total;
+      sectionEl.textContent = section;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+      const pct = ((current + 1) / total) * 100;
+      progressBar.style.width = pct + '%';
+    }
+
+    function goToPage(n) {
+      const idx = n - 1;
+      if (idx < 0 || idx >= total) return;
+      pages[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+      current = idx;
+      updateUI();
+    }
+
+    function flipPage(dir) {
+      const next = current + dir;
+      if (next < 0 || next >= total) return;
+      goToPage(next + 1);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); flipPage(1); }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); flipPage(-1); }
+    });
+
+    // Track scroll position to update page indicator
+    let scrollTimer;
+    mag.addEventListener('scroll', () => {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(() => {
+        const scrollLeft = mag.scrollLeft;
+        const pageWidth = mag.clientWidth;
+        const idx = Math.round(scrollLeft / pageWidth);
+        if (idx !== current) {
+          current = Math.min(Math.max(idx, 0), total - 1);
+          updateUI();
+        }
+      }, 80);
+    });
+
+    // Touch swipe gesture tracker for feedback
+    let touchStartX = 0;
+    mag.addEventListener('touchstart', e => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    mag.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        flipPage(diff > 0 ? 1 : -1);
+      }
+    }, { passive: true });
+
+    // Init
+    updateUI();
+  </script>
+</body>
+</html>
